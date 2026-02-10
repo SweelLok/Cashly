@@ -1,0 +1,12 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'accounts/style.css' %}">
+
+<h2>Вход</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button>Войти</button>
+</form>
+
+<a href="{% url 'register' %}">Регистрация</a>
