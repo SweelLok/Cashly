@@ -39,7 +39,6 @@ def register_view(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.set_password(form.cleaned_data['password1'])
             user.is_active = False
             user.save()
 
@@ -78,4 +77,3 @@ def activate_email(request, uidb64, token):
         return render(request, 'accounts/email_confirmed.html')
     else:
         return HttpResponse('Ссылка недействительна')
-    
