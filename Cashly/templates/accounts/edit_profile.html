@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile - Cashly{% endblock %}
+
+{% block content %}
+<style>
+    .edit-container { max-width: 500px; margin: 60px auto; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #444; }
+    .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-family: inherit; }
+    .btn-save { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s; }
+    .btn-save:hover { background: #0056b3; }
+    .error-list { color: #dc3545; font-size: 0.85rem; margin-top: 5px; }
+    .error-list li { list-style: none; }
+</style>
+
+<div class="edit-container">
+    <h2 style="text-align: center; margin-bottom: 30px;">Edit Profile</h2>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="id_username">Username</label>
+            <input type="text" id="id_username" name="username" value="{% if form.username.value %}{{ form.username.value }}{% else %}{{ user.username }}{% endif %}" required>
+            {% if form.username.errors %}
+                <div class="error-list">{{ form.username.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="id_email">Email</label>
+            <input type="email" id="id_email" name="email" value="{% if form.email.value %}{{ form.email.value }}{% else %}{{ user.email }}{% endif %}" required>
+            {% if form.email.errors %}
+                <div class="error-list">{{ form.email.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="id_bio">Bio</label>
+            <textarea name="bio" id="id_bio" rows="4">{{ form.bio.value }}</textarea>
+            {% if form.bio.errors %}
+                <div class="error-list">{{ form.bio.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="id_photo">Profile Picture</label>
+            {% if form.photo.value %}
+                <div style="margin-bottom: 10px;">
+                    <img src="{{ form.photo.value.url }}" alt="Current profile photo" style="max-width: 150px; border-radius: 8px;">
+                </div>
+            {% endif %}
+            <input type="file" name="photo" id="id_photo" accept="image/*">
+            {% if form.photo.errors %}
+                <div class="error-list">{{ form.photo.errors }}</div>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="btn-save">Save Changes</button>
+        <div style="text-align: center; margin-top: 15px;">
+            <a href="{% url 'profile' %}" style="color: #666; font-size: 0.9rem; text-decoration: none;">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

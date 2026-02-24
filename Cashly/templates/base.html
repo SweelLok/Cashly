@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Cashly - Personal Finance Management{% endblock %}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #007bff;
+            --bg: #f8f9fa;
+            --card-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            background-color: var(--bg);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Navigation Bar */
+        nav {
+            background: white;
+            box-shadow: var(--card-shadow);
+            padding: 15px 0;
+            flex-shrink: 0;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links .logout-btn {
+            background: var(--primary);
+            color: white !important;
+            padding: 8px 16px;
+            border-radius: 6px;
+        }
+
+        .nav-links .logout-btn:hover {
+            background: #0056b3;
+            color: white !important;
+        }
+
+        main {
+            flex: 1;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        footer {
+            background: white;
+            border-top: 1px solid #eee;
+            padding: 30px 20px;
+            text-align: center;
+            color: #6c757d;
+            margin-top: 50px;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+    {% if user.is_authenticated %}
+    <nav>
+        <div class="nav-container">
+            <a href="{% url 'dashboard' %}" class="nav-brand">Cashly</a>
+            <ul class="nav-links">
+                <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                <li><a href="{% url 'profile' %}">Profile</a></li>
+                <li><a href="{% url 'logout' %}" class="logout-btn">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+    {% endif %}
+
+    <main>
+        {% if messages %}
+        <div class="container">
+            {% for message in messages %}
+            <div style="padding: 15px; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 8px; margin-bottom: 20px; color: #155724;">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    {% if user.is_authenticated %}
+    <footer>
+        <p>&copy; 2026 Cashly - Personal Finance Management. All rights reserved.</p>
+    </footer>
+    {% endif %}
+</body>
+</html>

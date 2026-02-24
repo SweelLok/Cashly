@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Profile - Cashly{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --primary: #007bff;
+        --bg: #f8f9fa;
+        --card-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    body { background-color: var(--bg); font-family: 'Inter', sans-serif; }
+    .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+
+    .profile-card {
+        background: white; border-radius: 15px; padding: 30px;
+        box-shadow: var(--card-shadow); margin-bottom: 25px;
+        display: flex; align-items: center; justify-content: space-between;
+    }
+    .profile-info { display: flex; align-items: center; gap: 20px; }
+    .avatar { width: 80px; height: 80px; background: #e9ecef; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    
+    .stats { display: flex; gap: 30px; }
+    .stat-item { text-align: center; }
+    .stat-value { font-size: 1.2rem; font-weight: 700; display: block; }
+    .stat-label { font-size: 0.85rem; color: #6c757d; }
+
+    .dashboard-card { background: white; border-radius: 15px; padding: 25px; box-shadow: var(--card-shadow); }
+    .nav-tabs { display: flex; gap: 20px; border-bottom: 1px solid #dee2e6; margin-bottom: 20px; }
+    .tab-link { padding: 10px 5px; color: #6c757d; text-decoration: none; cursor: pointer; border-bottom: 2px solid transparent; transition: 0.3s; }
+    .tab-link.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .progress-container { background: #e9ecef; height: 8px; border-radius: 4px; margin: 10px 0; overflow: hidden; }
+    .progress-fill { background: var(--primary); height: 100%; transition: width 0.5s; }
+    .danger-fill { background: #dc3545; }
+
+    .goal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+    .goal-card { border: 1px solid #eee; padding: 20px; border-radius: 12px; text-align: center; }
+    
+    .btn { padding: 8px 16px; border-radius: 8px; font-weight: 500; cursor: pointer; transition: 0.3s; text-decoration: none; display: inline-block; }
+    .btn-primary { background: var(--primary); color: white; border: none; }
+    .btn-outline { border: 1px solid var(--primary); color: var(--primary); background: transparent; }
+    .btn-danger { background: #dc3545; color: white; border: none; padding: 6px 12px; font-size: 0.85rem; }
+    .btn-danger:hover { background: #c82333; }
+</style>
+
+<div class="container">
+    <div style="text-align: center; margin-bottom: 40px;">
+        <h1 style="font-weight: 800; font-size: 2.5rem;">My Finance Portfolio</h1>
+        <p style="color: #6c757d;">Explore your financial journey</p>
+    </div>
+
+    <div class="profile-card">
+        <div class="profile-info">
+            <div class="avatar">
+                {% if user.profile.photo %}
+                    <img src="{{ user.profile.photo.url }}" alt="Avatar">
+                {% else %}
+                    <span style="font-size: 2rem; color: #adb5bd;">👤</span>
+                {% endif %}
+            </div>
+            <div>
+                <h2 style="margin: 0;">{{ user.username }}</h2>
+            </div>
+        </div>
+        <a href="{% url 'edit_profile' %}" class="btn btn-outline">Edit Profile</a>
+    </div>
+
+    <div class="dashboard-card">
+        <div class="nav-tabs">
+            <div class="tab-link active" onclick="switchTab(event, 'expenses')">Expenses</div>
+            <div class="tab-link" onclick="switchTab(event, 'income')">Income</div>
+            <div class="tab-link" onclick="switchTab(event, 'budget')">Budget</div>
+        </div>
+
+        <div id="expenses" class="tab-content active">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3>My Expenses</h3>
+                <a href="{% url 'add_expense' %}" class="btn btn-outline">Add Expense</a>
+            </div>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                <thead style="background: #f8f9fa;">
+                    <tr>
+                        <th style="padding: 12px; text-align: left;">Date</th>
+                        <th style="padding: 12px; text-align: left;">Description</th>
+                        <th style="padding: 12px; text-align: left;">Category</th>
+                        <th style="padding: 12px; text-align: left;">Amount</th>
+                        <th style="padding: 12px; text-align: left;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in expense_list %}
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 12px;">{{ item.date|date:"d.m.Y" }}</td>
+                        <td style="padding: 12px;">{{ item.description }}</td>
+                        <td style="padding: 12px;">{{ item.category }}</td>
+                        <td style="padding: 12px;">${{ item.amount }}</td>
+                        <td style="padding: 12px;">
+                            <a href="{% url 'delete_expense' item.id %}" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this expense?');">Delete</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" style="text-align: center; padding: 40px; color: #999;">No data available</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div id="income" class="tab-content">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3>My Income</h3>
+                <a href="{% url 'add_income' %}" class="btn btn-outline">Add Income</a>
+            </div>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                <thead style="background: #f8f9fa;">
+                    <tr>
+                        <th style="padding: 12px; text-align: left;">Date</th>
+                        <th style="padding: 12px; text-align: left;">Description</th>
+                        <th style="padding: 12px; text-align: left;">Source</th>
+                        <th style="padding: 12px; text-align: left;">Amount</th>
+                        <th style="padding: 12px; text-align: left;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in income_list %}
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 12px;">{{ item.date|date:"d.m.Y" }}</td>
+                        <td style="padding: 12px;">{{ item.description }}</td>
+                        <td style="padding: 12px;">{{ item.source }}</td>
+                        <td style="padding: 12px;">+${{ item.amount }}</td>
+                        <td style="padding: 12px;">
+                            <a href="{% url 'delete_income' item.id %}" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this income?');">Delete</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" style="text-align: center; padding: 40px; color: #999;">No data available</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div id="budget" class="tab-content">
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 25px; display:flex; align-items:center; justify-content:space-between;">
+                <div style="flex:1;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <div style="color:#6c757d;">Result (Income - Spent)</div>
+                            <h2 style="margin:6px 0;">${{ monthly_net|default:0 }}</h2>
+                        </div>
+                        <div style="text-align:right; color:#6c757d;">
+                            <div>Income: ${{ monthly_income }}</div>
+                            <div>Spent: ${{ monthly_spent }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function switchTab(evt, tabName) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
+        document.getElementById(tabName).classList.add('active');
+        evt.currentTarget.classList.add('active');
+    }
+</script>
+{% endblock %}
