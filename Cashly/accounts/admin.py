@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import UserProfile, Expense, Income, Budget, FinancialGoal
 
-
+# профили юзеров
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'created_at', 'updated_at')
@@ -9,6 +9,7 @@ class UserProfileAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at', 'updated_at')
 
 
+# расходы
 @admin.register(Expense)
 class ExpenseAdmin(admin.ModelAdmin):
     list_display = ('user', 'description', 'category', 'amount', 'date')
@@ -17,6 +18,7 @@ class ExpenseAdmin(admin.ModelAdmin):
     ordering = ('-date',)
 
 
+# доходы
 @admin.register(Income)
 class IncomeAdmin(admin.ModelAdmin):
     list_display = ('user', 'description', 'source', 'amount', 'date')
@@ -25,6 +27,7 @@ class IncomeAdmin(admin.ModelAdmin):
     ordering = ('-date',)
 
 
+# бюджеты
 @admin.register(Budget)
 class BudgetAdmin(admin.ModelAdmin):
     list_display = ('user', 'category', 'limit', 'month')

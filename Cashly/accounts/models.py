@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-
+# таблица для расширенного профиля
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     bio = models.TextField(blank=True, null=True)
@@ -21,6 +21,7 @@ class UserProfile(models.Model):
         verbose_name_plural = "User Profiles"
 
 
+# автоматически создаём профиль при регистрации
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
@@ -32,6 +33,7 @@ def save_user_profile(sender, instance, **kwargs):
     instance.profile
 
 
+# модель для доходов
 class Income(models.Model):
     SOURCES = [
         ('Salary', 'Salary'),
@@ -57,6 +59,7 @@ class Income(models.Model):
         ordering = ['-date']
 
 
+# расходы
 class Expense(models.Model):
     CATEGORIES = [
         ('Food', 'Food'),
@@ -85,6 +88,7 @@ class Expense(models.Model):
         ordering = ['-date']
 
 
+# лимиты по категориям
 class Budget(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='budgets')
     category = models.CharField(max_length=50)
@@ -99,6 +103,7 @@ class Budget(models.Model):
         verbose_name_plural = "Budgets"
 
 
+# финансовые цели
 class FinancialGoal(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='goals')
     name = models.CharField(max_length=200)

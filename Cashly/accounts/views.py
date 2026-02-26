@@ -23,32 +23,35 @@ from django.http import HttpResponse
 
 logger = logging.getLogger(__name__)
 
-
-
+# вход
 def login_view(request):
     form = AuthenticationForm(request, data=request.POST or None)
     if request.method == 'POST' and form.is_valid():
         user = form.get_user()
-        login(request, user)
+        login(request, user)  # залогиниваем
         return redirect('dashboard')
 
     return render(request, 'accounts/login.html', {'form': form})
 
 
+# выход
 def logout_view(request):
     logout(request)
     return redirect('login')
 
 
+# главная страница
 @login_required
 def dashboard_view(request):
     profile, created = UserProfile.objects.get_or_create(user=request.user)
     
+    # последние расходы
     expense_list = Expense.objects.filter(user=request.user).order_by('-date')[:10]
     income_list = Income.objects.filter(user=request.user).order_by('-date')[:10]
     
     investments_count = FinancialGoal.objects.filter(user=request.user).count()
     
+    # считаем по месяцам
     today = datetime.now().date()
     current_month_start = today.replace(day=1)
     
@@ -260,6 +263,7 @@ def edit_profile_view(request):
     return render(request, 'accounts/edit_profile.html', {'form': form})
 
 
+# добавить расход
 @login_required
 def add_expense_view(request):
     if request.method == 'POST':
@@ -284,6 +288,7 @@ def add_expense_view(request):
     })
 
 
+# добавить доход
 @login_required
 def add_income_view(request):
     if request.method == 'POST':
@@ -308,6 +313,7 @@ def add_income_view(request):
     })
 
 
+# удалить расход
 @login_required
 def delete_expense_view(request, expense_id):
     expense = Expense.objects.filter(user=request.user, id=expense_id).first()
@@ -321,6 +327,7 @@ def delete_expense_view(request, expense_id):
     return redirect('profile')
 
 
+# удалить доход
 @login_required
 def delete_income_view(request, income_id):
     income = Income.objects.filter(user=request.user, id=income_id).first()
@@ -334,12 +341,13 @@ def delete_income_view(request, income_id):
     return redirect('profile')
 
 
+# регистрация
 def register_view(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.is_active = False
+            user.is_active = False  # активируем по email
             user.save()
             
             UserProfile.objects.get_or_create(user=user)
@@ -392,6 +400,7 @@ def register_view(request):
     return render(request, 'accounts/register.html', {'form': form})
 
 
+# новая цель
 @login_required
 def add_goal_view(request):
     if request.method == 'POST':
@@ -415,6 +424,7 @@ def add_goal_view(request):
     return render(request, 'accounts/add_goal.html')
 
 
+# редактировать цель
 @login_required
 def edit_goal_view(request, goal_id):
     goal = FinancialGoal.objects.filter(user=request.user, id=goal_id).first()
@@ -435,6 +445,7 @@ def edit_goal_view(request, goal_id):
     return render(request, 'accounts/edit_goal.html', {'goal': goal})
 
 
+# удалить цель
 @login_required
 def delete_goal_view(request, goal_id):
     goal = FinancialGoal.objects.filter(user=request.user, id=goal_id).first()

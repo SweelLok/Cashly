@@ -1,4 +1,4 @@
-Привет {{ user.username }}!
+Hello {{ user.username }}!
 
-Подтверди почту:
+Confirm your email address by clicking the link below:
 http://{{ domain }}{% url 'activate' uidb64=uid token=token %}

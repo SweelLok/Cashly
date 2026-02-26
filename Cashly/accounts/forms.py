@@ -4,6 +4,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from .models import UserProfile
 
 
+# форма регистрации
 class RegisterForm(forms.ModelForm):
     password1 = forms.CharField(widget=forms.PasswordInput)
     password2 = forms.CharField(widget=forms.PasswordInput)
@@ -15,6 +16,7 @@ class RegisterForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         if cleaned_data['password1'] != cleaned_data['password2']:
+            # проверяем совпадение паролей
             raise forms.ValidationError("Пароли не совпадают")
         return cleaned_data
 
@@ -26,6 +28,7 @@ class RegisterForm(forms.ModelForm):
         return user
 
 
+# форма редактирования профиля
 class EditProfileForm(forms.ModelForm):
     username = forms.CharField(max_length=150, required=True, widget=forms.TextInput(attrs={
         'class': 'form-control'
