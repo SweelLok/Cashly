@@ -16,6 +16,7 @@ from .views import (
     add_goal_view,
     edit_goal_view,
     delete_goal_view
+    , terms_view
 )
 
 
@@ -36,4 +37,5 @@ urlpatterns = [
     path('explore/delete-goal/<int:goal_id>/', delete_goal_view, name='delete_goal'),
     path('profile/update-budgets/', update_budgets_view, name='update_budgets'),
     path('activate/<uidb64>/<token>/', activate_email, name='activate'),
+    path('terms/', terms_view, name='terms'),
 ]

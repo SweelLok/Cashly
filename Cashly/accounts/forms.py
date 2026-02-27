@@ -2,12 +2,16 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
 from .models import UserProfile
+from django.core.exceptions import ValidationError
 
 
 # форма регистрации
 class RegisterForm(forms.ModelForm):
     password1 = forms.CharField(widget=forms.PasswordInput)
     password2 = forms.CharField(widget=forms.PasswordInput)
+    username = forms.CharField(max_length=150, required=True, widget=forms.TextInput(attrs={
+        'class': 'form-control'
+    }))
 
     class Meta:
         model = User
@@ -15,10 +19,17 @@ class RegisterForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        if cleaned_data['password1'] != cleaned_data['password2']:
-            # проверяем совпадение паролей
+        p1 = cleaned_data.get('password1')
+        p2 = cleaned_data.get('password2')
+        if p1 and p2 and p1 != p2:
             raise forms.ValidationError("Пароли не совпадают")
         return cleaned_data
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username', '')
+        if username and not username.isalpha():
+            raise ValidationError('Имя должно содержать только буквы (без цифр и символов).')
+        return username
 
     def save(self, commit=True):
         user = super().save(commit=False)

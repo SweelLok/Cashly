@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up - WealthWay</title>
+    <title>Sign Up - Cashly</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
     
     <style>
@@ -103,18 +103,34 @@
     <main class="auth-card">
         <div class="auth-header">
             <h1>Registration</h1>
-            <p>Create your WealthWay account</p>
+            <p>Create your Cashly account</p>
         </div>
 
         <form action="{% url 'register' %}" method="POST">
             {% csrf_token %}
 
+            {% if form.errors %}
+            <div style="background:#3b0b0b; padding:10px; border-radius:8px; margin-bottom:10px; color:#ffd5d5;">
+                <ul style="margin:0; padding-left:18px;">
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
             <div class="form-group">
                 <label>Name</label>
                 <div class="input-wrapper">
                     <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                    <input type="text" name="username" placeholder="Username" required>
+                    <input type="text" name="username" placeholder="Username" pattern="[A-Za-zА-Яа-яЁё]+" title="Только буквы" required>
                 </div>
+                <small id="usernameWarn" style="color:#ffd166; display:none;">You cannot enter symbols - only letters</small>
+                {% if form.username.errors %}
+                    <div style="color:#ffb4b4; margin-top:6px;">{{ form.username.errors.0 }}</div>
+                {% endif %}
             </div>
 
             <div class="form-group">
@@ -123,6 +139,9 @@
                     <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
                     <input type="email" name="email" placeholder="example@mail.com" required>
                 </div>
+                {% if form.email.errors %}
+                    <div style="color:#ffb4b4; margin-top:6px;">{{ form.email.errors.0 }}</div>
+                {% endif %}
             </div>
 
             <div class="form-group">
@@ -131,6 +150,9 @@
                     <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                     <input type="password" name="password1" placeholder="••••••••" required>
                 </div>
+                {% if form.password1.errors %}
+                    <div style="color:#ffb4b4; margin-top:6px;">{{ form.password1.errors.0 }}</div>
+                {% endif %}
             </div>
 
             <div class="form-group">
@@ -139,11 +161,14 @@
                     <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                     <input type="password" name="password2" placeholder="••••••••" required>
                 </div>
+                {% if form.password2.errors %}
+                    <div style="color:#ffb4b4; margin-top:6px;">{{ form.password2.errors.0 }}</div>
+                {% endif %}
             </div>
 
             <div class="checkbox-group">
-                <input type="checkbox" id="terms" required>
-                <label for="terms" style="display:inline; margin:0;">I agree to the terms and conditions</label>
+                <input type="checkbox" id="terms" name="agree_terms" required>
+                <label for="terms" style="display:inline; margin:0;">I agree to the <a href="{% url 'terms' %}" style="color:inherit; text-decoration:underline;">terms and conditions</a></label>
             </div>
 
             <button type="submit" class="btn-primary">Create account</button>
@@ -153,5 +178,16 @@
             </p>
         </form>
     </main>
+    <script>
+        (function(){
+            const uname = document.querySelector('input[name="username"]');
+            const warn = document.getElementById('usernameWarn');
+            if(!uname || !warn) return;
+            const re = /^[A-Za-zА-Яа-яЁё]+$/;
+            uname.addEventListener('input', function(){
+                if(this.value && !re.test(this.value)) warn.style.display = 'block'; else warn.style.display = 'none';
+            });
+        })();
+    </script>
 </body>
 </html>

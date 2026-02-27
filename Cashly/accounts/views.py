@@ -12,7 +12,7 @@ from django.db.models import Sum
 from django.contrib import messages
 from django.conf import settings
 from datetime import datetime
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 import logging
 import smtplib
 
@@ -227,6 +227,10 @@ def investments_goals_view(request):
     return render(request, 'accounts/investments_goals.html', context)
 
 
+def terms_view(request):
+    return render(request, 'accounts/terms.html')
+
+
 @login_required
 def update_budgets_view(request):
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
@@ -273,11 +277,25 @@ def add_expense_view(request):
         date = request.POST.get('date')
         
         if description and category and amount and date:
+            try:
+                amt = Decimal(amount)
+            except InvalidOperation:
+                messages.error(request, 'Некорректная сумма')
+                return render(request, 'accounts/add_expense.html', {
+                    'categories': Expense.CATEGORIES
+                })
+
+            if amt < 0:
+                messages.error(request, 'Сумма не может быть отрицательной')
+                return render(request, 'accounts/add_expense.html', {
+                    'categories': Expense.CATEGORIES
+                })
+
             Expense.objects.create(
                 user=request.user,
                 description=description,
                 category=category,
-                amount=Decimal(amount),
+                amount=amt,
                 date=date
             )
             messages.success(request, 'Expense added successfully!')
@@ -298,11 +316,25 @@ def add_income_view(request):
         date = request.POST.get('date')
         
         if description and source and amount and date:
+            try:
+                amt = Decimal(amount)
+            except InvalidOperation:
+                messages.error(request, 'Incorrect amount')
+                return render(request, 'accounts/add_income.html', {
+                    'sources': Income.SOURCES
+                })
+
+            if amt < 0:
+                messages.error(request, 'Amount cannot be negative')
+                return render(request, 'accounts/add_income.html', {
+                    'sources': Income.SOURCES
+                })
+
             Income.objects.create(
                 user=request.user,
                 description=description,
                 source=source,
-                amount=Decimal(amount),
+                amount=amt,
                 date=date
             )
             messages.success(request, 'Income added successfully!')
@@ -471,5 +503,5 @@ def activate_email(request, uidb64, token):
         user.save()
         return render(request, 'accounts/email_confirmed.html')
     else:
-        return HttpResponse('Ссылка недействительна')
+        return HttpResponse('Invalid activation link')
     
